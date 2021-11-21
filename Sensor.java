@@ -1,6 +1,10 @@
-package Component.SISO;
+package Component.CSE561project;
 
+import Component.SISO.siso;
+import GenCol.doubleEnt;
+import GenCol.entity;
 import model.modeling.content;
+import model.modeling.message;
 
 public class Sensor extends siso {
 	public entity input;
@@ -20,8 +24,8 @@ public class Sensor extends siso {
 		addInport("ExternalPort");
 		addOutport("ControllerPort");
 		
-		addTestInput("ExternalPort", new doubleEnt((double)1));
-		addTestInput("ExternalPort", new doubleEnt((double)-1));
+		addTestInput("ExternalPort", new doubleEnt((double)1000000));
+		addTestInput("ExternalPort", new doubleEnt((double)-1000000));
 		
 		initalize();
 	}
