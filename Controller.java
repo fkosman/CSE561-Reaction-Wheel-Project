@@ -13,8 +13,6 @@ public class Controller extends ViewableAtomic
 	double GAIN;
 	doubleEnt commanded_torque;
 	double TOL;
-
-	private static double PI = 3.14159;
 	
 	public Controller() {this("Controller");}
 	public Controller(String name) 
@@ -29,7 +27,7 @@ public class Controller extends ViewableAtomic
 		//test inputs:
 		for(int i=1; i<=8 ;i++)
 		{
-			double angle = ((double)i/4.0)*PI;
+			double angle = ((double)i/4.0)*Math.PI;
 			addTestInput("UserPort", new doubleEnt(angle));
 			addTestInput("FeedbackPort", new doubleEnt(angle));
 		}
@@ -38,14 +36,13 @@ public class Controller extends ViewableAtomic
 	}
 	
 	
-	public void initalize()
+	public void initialize()
 	{
-		phase = "active";
-		sigma = 1;
 		goal_angle = 0;
 		GAIN = 1;
 		TOL = 0.035;
 		commanded_torque = new doubleEnt(0.0);
+		holdIn("active", 1);
 	}
 	
 	public void deltext(double e, message x) {
