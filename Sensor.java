@@ -14,7 +14,7 @@ public class Sensor extends siso {
 	public double wheel_tor;
 	public double external_tor;
 
-	private static final double time_step=0.000001;
+	private static final double time_step=0.001;
 	private static final double init_angle=0;
 	private static final double spacecraft_inertia=10;
 	
@@ -23,6 +23,7 @@ public class Sensor extends siso {
 		addInport("MotorPort");
 		addInport("ExternalPort");
 		addOutport("ControllerPort");
+		addOutport("UserPort");
 		
 		addTestInput("ExternalPort", new doubleEnt((double)1000000));
 		addTestInput("ExternalPort", new doubleEnt((double)-1000000));
@@ -64,6 +65,8 @@ public class Sensor extends siso {
 	public message out(){
 		message m = new message();
 		content con = makeContent("ControllerPort", new doubleEnt(spacecraft_angle));
+		m.add(con);
+		con = makeContent("UserPort", new doubleEnt(external_tor));
 		m.add(con);
 		return m;
 	}

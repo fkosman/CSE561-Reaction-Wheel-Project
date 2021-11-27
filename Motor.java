@@ -14,7 +14,7 @@ public class Motor extends siso {
 	private static double MAX_TRQ = 5000000; //TODO
 	private static double PI = 3.14159;
 	private static double MAX_VEL = 10000*2*PI; //10000rpm TODO
-	private static double TIME_STEP = 0.000001;
+	private static double TIME_STEP = 0.001;
 	
 	private double wheel_vel;
 	private double cmd_trq;
@@ -29,6 +29,7 @@ public class Motor extends siso {
 		
 		addInport(CMD_TRQ_INPORT);
 		addOutport(RCTN_TRQ_OUTPORT);
+		addOutport("UserPort");
 		
 		addTestInput(CMD_TRQ_INPORT, new doubleEnt((double)1000000));
 		addTestInput(CMD_TRQ_INPORT, new doubleEnt((double)-1000000));
@@ -90,6 +91,7 @@ public class Motor extends siso {
 	{
 		message m = new message();
 		m.add(makeContent(RCTN_TRQ_OUTPORT, new doubleEnt(reaction_trq)));
+		m.add(makeContent("UserPort", new doubleEnt(wheel_vel)));
 		return m;
 	}
 	

@@ -19,10 +19,14 @@ public class Satellite extends ViewableDigraph {
 		addInport(CMD_IN_PORT);
 		addInport(DISTURBANCE_IN_PORT);
 		
+		addOutport(ANGLE_OUT_PORT);
+		addOutport("Wheel Speed Out");
+		addOutport("Disturbance Out");
 		
 		Motor motor = new Motor();
 		Sensor sensor = new Sensor();
 		Controller controller = new Controller();
+		Disturbance disturbance = new Disturbance();
 		
 		add(motor);
 		add(sensor);
@@ -34,10 +38,11 @@ public class Satellite extends ViewableDigraph {
 		addCoupling(controller, "MotorCmdPort", motor, "commanded torque");
 		
 		addCoupling(motor, "reaction torque", sensor, "MotorPort");
+		addCoupling(motor, "UserPort", this, "Wheel Speed Out");
 		
 		addCoupling(sensor, "ControllerPort", this, ANGLE_OUT_PORT);
 		addCoupling(sensor, "ControllerPort", controller, "FeedbackPort");
-		
+		addCoupling(sensor, "UserPort", this, "Disturbance Out");
 		
 		for(int i=1; i<=8 ;i++)
 		{
@@ -48,8 +53,6 @@ public class Satellite extends ViewableDigraph {
 		
 		
 		initialize();
-		
-		addOutport(ANGLE_OUT_PORT);
 	}
 	
 	
@@ -60,9 +63,9 @@ public class Satellite extends ViewableDigraph {
     @Override
     public void layoutForSimView()
     {
-        preferredSize = new Dimension(591, 332);
-        ((ViewableComponent)withName("Motor")).setPreferredLocation(new Point(32, 117));
-        ((ViewableComponent)withName("Controller")).setPreferredLocation(new Point(60, 39));
-        ((ViewableComponent)withName("Sensor")).setPreferredLocation(new Point(67, 196));
+        preferredSize = new Dimension(499, 276);
+        ((ViewableComponent)withName("Motor")).setPreferredLocation(new Point(-1, 110));
+        ((ViewableComponent)withName("Controller")).setPreferredLocation(new Point(11, 23));
+        ((ViewableComponent)withName("Sensor")).setPreferredLocation(new Point(-4, 208));
     }
 }
