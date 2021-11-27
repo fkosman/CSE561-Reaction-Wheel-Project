@@ -39,6 +39,7 @@ public class Controller extends ViewableAtomic
 	public void initialize()
 	{
 		goal_angle = 0;
+		actual_angle = 0;
 		GAIN = 1;
 		TOL = 0.035;
 		commanded_torque = new doubleEnt(0.0);
@@ -55,7 +56,7 @@ public class Controller extends ViewableAtomic
 			} 
 			else if(messageOnPort(x,"FeedbackPort",i))
 			{
-				goal_angle = Double.parseDouble(x.getValOnPort("FeedbackPort", i).toString());
+				actual_angle = Double.parseDouble(x.getValOnPort("FeedbackPort", i).toString());
 			}
 		}
 	}
@@ -64,7 +65,7 @@ public class Controller extends ViewableAtomic
 	public void deltint() {
 		sigma = 1;
 		if(Math.abs(goal_angle - actual_angle) > TOL)
-			commanded_torque = new doubleEnt(GAIN*(goal_angle - actual_angle));
+			commanded_torque = new doubleEnt(-1 * GAIN * (goal_angle - actual_angle));
 		else
 			commanded_torque = new doubleEnt(0.0);
 	}
