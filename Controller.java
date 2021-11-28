@@ -40,8 +40,8 @@ public class Controller extends ViewableAtomic
 	{
 		goal_angle = 0;
 		actual_angle = 0;
-		GAIN = 1;
-		TOL = 0.035;
+		GAIN = 0.00001;
+		TOL = 0.00;
 		commanded_torque = new doubleEnt(0.0);
 		holdIn("active", 1);
 	}

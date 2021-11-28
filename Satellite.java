@@ -44,7 +44,7 @@ public class Satellite extends ViewableDigraph {
 		addCoupling(sensor, "ControllerPort", controller, "FeedbackPort");
 		addCoupling(sensor, "UserPort", this, "Disturbance Out");
 		
-		for(int i=1; i<=8 ;i++)
+		for(int i=1; i<=4 ;i++)
 		{
 			double angle = ((double)i/4.0)*Math.PI;
 			addTestInput(CMD_IN_PORT, new doubleEnt(angle));

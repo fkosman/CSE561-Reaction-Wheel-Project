@@ -14,9 +14,11 @@ public class Sensor extends siso {
 	public double wheel_tor;
 	public double external_tor;
 
-	private static final double time_step=0.001;
+	private static final double time_step=1.0;
 	private static final double init_angle=0;
-	private static final double spacecraft_inertia=10;
+	// Moment of Inertia for a cube passing through the center:
+	// I = (1/6)ma^2, m = mass(kg), a=length of side(m), I(kgm^2)
+	private static final double spacecraft_inertia = (1.0/6.0)*1.33*0.01*0.01;
 	
 	public Sensor(){
 	    super("Sensor");
@@ -64,9 +66,9 @@ public class Sensor extends siso {
 	
 	public message out(){
 		message m = new message();
-		content con = makeContent("ControllerPort", new doubleEnt(spacecraft_angle));
-		m.add(con);
-		con = makeContent("UserPort", new doubleEnt(external_tor));
+		content angle_con = makeContent("ControllerPort", new doubleEnt(spacecraft_angle));
+		content con = makeContent("UserPort", new doubleEnt(external_tor));
+		m.add(angle_con);
 		m.add(con);
 		return m;
 	}

@@ -10,10 +10,11 @@ import model.modeling.message;
 
 public class Disturbance extends siso {
 
-	private static final int magnitude=3;
-	private static final double freq=0.0003;
+	private static final double magnitude = 0.0;//0.0005;
+	private static final double min_mag = 0.0;//0.0001;
+	private static final double freq=0.05;
 	private static final double duration=2;
-	private static final double time_step=0.001;
+	private static final double time_step=1.0;
 	
 	protected static Random rand = new Random();
 	protected double torque;
@@ -45,10 +46,10 @@ public class Disturbance extends siso {
 			if (prob < freq)	{
 				passive = false;
 				int coinflip = rand.nextInt(2);
+				torque = (min_mag + rand.nextDouble()*(magnitude - min_mag));
 				if (coinflip == 1)
-					torque = -1 * (rand.nextInt(magnitude) + 1);
-				else
-					torque = rand.nextInt(magnitude) + 1;
+					torque = -1 * torque;
+
 				timeRemaining = (int)(duration / time_step);
 			}
 		}

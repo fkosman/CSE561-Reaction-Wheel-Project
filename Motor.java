@@ -10,11 +10,13 @@ public class Motor extends siso {
 	private static String ACTIVE_PHASE = "active";
 	private static String CMD_TRQ_INPORT = "commanded torque";
 	private static String RCTN_TRQ_OUTPORT = "reaction torque";
-	private static double INERTIA= 1.0; //TODO
-	private static double MAX_TRQ = 5000000; //TODO
-	private static double PI = 3.14159;
-	private static double MAX_VEL = 10000*2*PI; //10000rpm TODO
-	private static double TIME_STEP = 0.001;
+	
+	private static double MAX_TRQ = 0.0032; //Nm
+	private static double MAX_VEL = 6500/60*2*Math.PI; //6500rpm to rad/s
+	private static double TIME_STEP = 1.0;
+	//    L = I*omega, L = max torque storage, omega is wheel angular velocity
+	// => I_max = L/omega_max
+	private static double INERTIA = 0.02 / MAX_VEL;
 	
 	private double wheel_vel;
 	private double cmd_trq;
@@ -56,7 +58,7 @@ public class Motor extends siso {
 		}
 		if(Math.abs(cmd_trq) > MAX_TRQ)
 		{
-			if(cmd_trq < 0)
+			if(cmd_trq > 0)
 			{
 				cmd_trq = MAX_TRQ;
 			}
@@ -73,7 +75,7 @@ public class Motor extends siso {
 		wheel_vel += cmd_trq/INERTIA;
 		if(Math.abs(wheel_vel) > MAX_VEL)
 		{
-			if(wheel_vel < 0)
+			if(wheel_vel > 0)
 			{
 				wheel_vel = MAX_VEL;
 			}
