@@ -2,7 +2,7 @@ package Component.CSE561project;
 
 import Component.SISO.siso;
 import GenCol.doubleEnt;
-import GenCol.entity;
+import GenCol.*;
 import model.modeling.content;
 import model.modeling.message;
 
@@ -14,7 +14,7 @@ public class Sensor extends siso {
 	public double wheel_tor;
 	public double external_tor;
 
-	private static final double time_step=1.0;
+	private static final double time_step=0.1;
 	private static final double init_angle=0;
 	// Moment of Inertia for a cube passing through the center:
 	// I = (1/6)ma^2, m = mass(kg), a=length of side(m), I(kgm^2)
@@ -24,7 +24,8 @@ public class Sensor extends siso {
 	    super("Sensor");
 		addInport("MotorPort");
 		addInport("ExternalPort");
-		addOutport("ControllerPort");
+		addOutport("ControllerPortAngle");
+		addOutport("ControllerPortVelocity");
 		addOutport("UserPort");
 		
 		addTestInput("ExternalPort", new doubleEnt((double)1000000));
@@ -58,17 +59,24 @@ public class Sensor extends siso {
 	
 	public void deltint(){
 		double net_tor = external_tor - wheel_tor;
-		spacecraft_rot_speed += (net_tor / spacecraft_inertia);	
-		spacecraft_angle += (spacecraft_rot_speed * time_step);
+		spacecraft_rot_speed += (net_tor / spacecraft_inertia) * time_step;	
+		spacecraft_angle += spacecraft_rot_speed * time_step;
+		
+		spacecraft_angle = spacecraft_angle % (2 * Math.PI);
+		if (spacecraft_angle < 0.0)
+			spacecraft_angle += 2 * Math.PI;
 				
 		holdIn("Active", 1);
 	}
 	
 	public message out(){
 		message m = new message();
-		content angle_con = makeContent("ControllerPort", new doubleEnt(spacecraft_angle));
-		content con = makeContent("UserPort", new doubleEnt(external_tor));
+		content angle_con = makeContent("ControllerPortAngle", new doubleEnt(spacecraft_angle));
+		content vel_con = makeContent("ControllerPortVelocity", new doubleEnt(spacecraft_rot_speed));
+		content con = makeContent("UserPort", new entity("Disturbance: " + 
+														 String.format("%.2f", external_tor) + " Nm"));
 		m.add(angle_con);
+		m.add(vel_con);
 		m.add(con);
 		return m;
 	}

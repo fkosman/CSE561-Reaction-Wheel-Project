@@ -2,7 +2,7 @@ package Component.CSE561project;
 
 import java.awt.*;
 
-import GenCol.doubleEnt;
+import GenCol.*;
 import view.modeling.*;
 
 public class Satellite extends ViewableDigraph {
@@ -40,8 +40,9 @@ public class Satellite extends ViewableDigraph {
 		addCoupling(motor, "reaction torque", sensor, "MotorPort");
 		addCoupling(motor, "UserPort", this, "Wheel Speed Out");
 		
-		addCoupling(sensor, "ControllerPort", this, ANGLE_OUT_PORT);
-		addCoupling(sensor, "ControllerPort", controller, "FeedbackPort");
+		addCoupling(controller, "UserFeedback", this, ANGLE_OUT_PORT);
+		addCoupling(sensor, "ControllerPortAngle", controller, "AngleFeedbackPort");
+		addCoupling(sensor, "ControllerPortVelocity", controller, "VelocityFeedbackPort");
 		addCoupling(sensor, "UserPort", this, "Disturbance Out");
 		
 		for(int i=1; i<=4 ;i++)
@@ -63,8 +64,8 @@ public class Satellite extends ViewableDigraph {
     @Override
     public void layoutForSimView()
     {
-        preferredSize = new Dimension(499, 276);
-        ((ViewableComponent)withName("Motor")).setPreferredLocation(new Point(-1, 110));
+        preferredSize = new Dimension(556, 276);
+        ((ViewableComponent)withName("Motor")).setPreferredLocation(new Point(20, 115));
         ((ViewableComponent)withName("Controller")).setPreferredLocation(new Point(11, 23));
         ((ViewableComponent)withName("Sensor")).setPreferredLocation(new Point(-4, 208));
     }

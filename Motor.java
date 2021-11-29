@@ -1,8 +1,7 @@
 package Component.CSE561project;
 
 import Component.SISO.siso;
-import GenCol.doubleEnt;
-import GenCol.entity;
+import GenCol.*;
 import model.modeling.*;
 
 public class Motor extends siso {
@@ -13,7 +12,7 @@ public class Motor extends siso {
 	
 	private static double MAX_TRQ = 0.0032; //Nm
 	private static double MAX_VEL = 6500/60*2*Math.PI; //6500rpm to rad/s
-	private static double TIME_STEP = 1.0;
+	private static double TIME_STEP = 0.1;
 	//    L = I*omega, L = max torque storage, omega is wheel angular velocity
 	// => I_max = L/omega_max
 	private static double INERTIA = 0.02 / MAX_VEL;
@@ -93,7 +92,9 @@ public class Motor extends siso {
 	{
 		message m = new message();
 		m.add(makeContent(RCTN_TRQ_OUTPORT, new doubleEnt(reaction_trq)));
-		m.add(makeContent("UserPort", new doubleEnt(wheel_vel)));
+		m.add(makeContent("UserPort", new entity("Wheel velocity: " + 
+												 String.format("%.2f", 60 * wheel_vel / (2 * Math.PI)) + 
+												 "RPM")));
 		return m;
 	}
 	
@@ -101,6 +102,6 @@ public class Motor extends siso {
 	{
 		super.showState();
 		System.out.println("Wheel Vel: " + Double.toString(wheel_vel));
-		System.out.println("Wheel Torqe: " + Double.toString(reaction_trq));
+		System.out.println("Wheel Torque: " + Double.toString(reaction_trq));
 	}
 }
