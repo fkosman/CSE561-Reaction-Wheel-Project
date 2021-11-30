@@ -10,11 +10,11 @@ import model.modeling.message;
 
 public class Disturbance extends siso {
 
-	private static final double magnitude = 0.0;//0.0005;
-	private static final double min_mag = 0.0;//0.0001;
-	private static final double freq=0.05;
-	private static final double duration=2;
-	private static final double time_step=1.0;
+	private static final double MAX = 0.00000005;
+	private static final double MIN = 0.00000001;
+	private static final double FREQ = 0.05;
+	private static final double DURATION = 2.0;
+	private static final double TIME_STEP = 0.1;
 	
 	protected static Random rand = new Random();
 	protected double torque;
@@ -23,7 +23,7 @@ public class Disturbance extends siso {
 	
 	public Disturbance(){
 	    super("Disturbance");
-		addOutport("SensorPort");
+		addOutport("SatellitePort");
 		
 		initalize();
 	}
@@ -32,7 +32,7 @@ public class Disturbance extends siso {
 		passive = true;
 		torque = 0;
 		timeRemaining = 0;
-		holdIn("Active", 1);
+		holdIn("active", 1);
 		super.initialize();
 	}
 	
@@ -43,14 +43,14 @@ public class Disturbance extends siso {
 	public void deltint(){
 		if (passive)	{
 			double prob = rand.nextDouble();
-			if (prob < freq)	{
+			if (prob < FREQ)	{
 				passive = false;
 				int coinflip = rand.nextInt(2);
-				torque = (min_mag + rand.nextDouble()*(magnitude - min_mag));
+				torque = (MIN + rand.nextDouble()*(MAX - MIN));
 				if (coinflip == 1)
 					torque = -1 * torque;
 
-				timeRemaining = (int)(duration / time_step);
+				timeRemaining = (int)(DURATION / TIME_STEP);
 			}
 		}
 		else	{
@@ -61,12 +61,12 @@ public class Disturbance extends siso {
 			}
 		}
 		
-		holdIn("Active", 1);
+		holdIn("active", 1);
 	}
 	
 	public message out(){
 		message m = new message();
-		content con = makeContent("SensorPort", new doubleEnt(torque));
+		content con = makeContent("SatellitePort", new doubleEnt(torque));
 		m.add(con);
 		return m;
 	}

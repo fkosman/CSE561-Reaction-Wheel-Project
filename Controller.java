@@ -5,28 +5,31 @@ import model.modeling.message;
 import GenCol.*;
 
 
-public class Controller extends ViewableAtomic
-{
-	//secondary phase:
-	double goal_angle;
-	double actual_angle;
-	double rot_speed;
-	double GAIN;
-	double commanded_torque;
-	double TOL;
-	private static double TIME_STEP = 0.1;
-	private static double ROT_TIME = 5.0;
+public class Controller extends ViewableAtomic	{
+	private double goalAngle;
+	private double actualAngle;
+	private double angularVelocity;
+	private double commandedTorque;
 	
-	public Controller() {this("Controller");}
-	public Controller(String name) 
-	{
-		super(name);
-		
-		//Two in ports and one out port
+	private static final double GAIN = 0.0001;
+	private static final double TOL = 0.005;
+	private static final double TIME_STEP = 0.1;
+	
+	// Minimum speed is to prevent the controller from having its
+	// ideal speed converge to zero before it is close enough to the target.
+	// A value of TOL * TIME_STEP is chosen to make sure it detects
+	// when it has approached the tolerance margin of the target.
+	private static final double MIN_SPEED = TOL * TIME_STEP; 
+	private static final double ROT_TIME = 5.0;
+	private static final double INITIAL_ANGLE = 0.0;
+	private static final double INITIAL_VELOCITY = 0.0;
+	
+	public Controller() {
+		super("Controller");
 		addInport("UserPort");
-		addInport("AngleFeedbackPort");
-		addInport("VelocityFeedbackPort");
-		addOutport("MotorCmdPort");
+		addInport("SensorPortAngle");
+		addInport("SensorPortVelocity");
+		addOutport("MotorPort");
 		addOutport("UserFeedback");
 		
 		//test inputs:
@@ -39,77 +42,78 @@ public class Controller extends ViewableAtomic
 	}
 	
 	
-	public void initialize()
-	{
-		goal_angle = 0;
-		actual_angle = 0;
-		rot_speed = 0;
-		GAIN = 0.0001;
-		TOL = 0.00005;
-		commanded_torque = 0.0;
+	public void initialize()	{
+		super.initialize();
+		goalAngle = INITIAL_ANGLE;
+		actualAngle = INITIAL_ANGLE;
+		angularVelocity = INITIAL_VELOCITY;
+		commandedTorque = 0.0;
 		holdIn("active", 1);
 	}
 	
 	public void deltext(double e, message x) {
 		sigma = sigma - e;
-		for(int i=0; i<x.getLength(); i++)
-		{
-			if(messageOnPort(x, "UserPort", i))
-			{
-				goal_angle = Double.parseDouble(x.getValOnPort("UserPort", i).toString()) % 360.0;
-				if (goal_angle < 0.0)
-					goal_angle = 360.0 + goal_angle;
+		for(int i=0; i<x.getLength(); i++)	{
+			if(messageOnPort(x, "UserPort", i))	{
+				goalAngle = Double.parseDouble(x.getValOnPort("UserPort", i).toString()) % 360.0;
+				if (goalAngle < 0.0)
+					goalAngle = 360.0 + goalAngle;
 				
-				goal_angle *= (2 * Math.PI / 360.0);
+				goalAngle *= (2 * Math.PI / 360.0);
 			} 
-			else if(messageOnPort(x,"AngleFeedbackPort",i))	
-				actual_angle = Double.parseDouble(x.getValOnPort("AngleFeedbackPort", i).toString());
-			else if (messageOnPort(x,"VelocityFeedbackPort",i))
-				rot_speed = Double.parseDouble(x.getValOnPort("VelocityFeedbackPort", i).toString());
+			else if(messageOnPort(x,"SensorPortAngle",i))	
+				actualAngle = Double.parseDouble(x.getValOnPort("SensorPortAngle", i).toString());
+			else if (messageOnPort(x,"SensorPortVelocity",i))
+				angularVelocity = Double.parseDouble(x.getValOnPort("SensorPortVelocity", i).toString());
 		}
 	}
 	
 	public void deltint() {
 		sigma = 1;
 		
-		double clockWiseDist, antiClockWiseDist;
-		if (goal_angle > actual_angle)	{
-			clockWiseDist = Math.abs(goal_angle - actual_angle);
-			antiClockWiseDist = Math.abs((goal_angle - 2 * Math.PI) - actual_angle);
+		double posAngularDist, negAngularDist;
+		if (goalAngle > actualAngle)	{
+			posAngularDist = Math.abs(goalAngle - actualAngle);
+			negAngularDist = Math.abs((goalAngle - 2 * Math.PI) - actualAngle);
 		}
 		else	{
-			clockWiseDist = Math.abs(goal_angle + (2 * Math.PI - actual_angle));
-			antiClockWiseDist = Math.abs(actual_angle - goal_angle);
+			posAngularDist = Math.abs(goalAngle + (2 * Math.PI - actualAngle));
+			negAngularDist = Math.abs(actualAngle - goalAngle);
 		}
 		
-		double angle_gap = Math.min(clockWiseDist, antiClockWiseDist);
-		double ideal_rot_speed = angle_gap / ROT_TIME;
+		double angularDist = Math.min(posAngularDist, negAngularDist);
 		
-		if (antiClockWiseDist < clockWiseDist)
-			ideal_rot_speed *= -1.0;
+		double idealAngularVelocity;
+		if (angularDist < TOL)
+			idealAngularVelocity = 0.0;
+		else	
+			idealAngularVelocity = Math.max(angularDist / ROT_TIME, MIN_SPEED);	
 		
-		if(Math.abs(ideal_rot_speed - rot_speed) > TOL 
-		   || Math.abs(goal_angle - actual_angle) > TOL)	
-			commanded_torque = -1 * (ideal_rot_speed - rot_speed) * GAIN;
-		else
-			commanded_torque = 0.0;
+		
+		if (negAngularDist < posAngularDist)
+			idealAngularVelocity *= -1.0;
+		
+		commandedTorque = -1.0 * (idealAngularVelocity - angularVelocity) * GAIN;
 	}
 	
 	//Okay to use default confluent delta function
-	public void deltcon(double e, message x)
-	{
+	public void deltcon(double e, message x)	{
 		deltext(0,x);
 		deltint();
 	}
 	
 	//Output the commanded Torque to the motor.
-	public message out()
-	{
+	public message out()	{
+		showState();
 		message m = new message();
-		m.add(makeContent("MotorCmdPort", new doubleEnt(commanded_torque)));
-		m.add(makeContent("UserFeedback", new entity("Angle: " +
-													 String.format("%.2f", actual_angle * 360 / (2 * Math.PI)) +
-													  " degrees")));
+		m.add(makeContent("MotorPort", new doubleEnt(commandedTorque)));
+		m.add(makeContent("UserFeedback", new doubleEnt(actualAngle * 360 / (2 * Math.PI))));
 		return m;
+	}
+	
+	public void showState()	{
+		super.showState();
+		System.out.println("Angle: " + 
+						   String.format("%.2f", actualAngle * 360 / (2 * Math.PI)) + " degrees");
 	}
 }

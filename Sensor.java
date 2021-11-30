@@ -7,18 +7,18 @@ import model.modeling.content;
 import model.modeling.message;
 
 public class Sensor extends siso {
-	public entity input;
-	
-	public double spacecraft_angle;
-	public double spacecraft_rot_speed;
-	public double wheel_tor;
-	public double external_tor;
+	private double currentAngle;
+	private double angularVelocity;
+	private double wheelTorque;
+	private double externalTorque;
 
-	private static final double time_step=0.1;
-	private static final double init_angle=0;
+	private static final double TIME_STEP = 0.1;
+	private static final double INITIAL_ANGLE = 0.0;
+	private static final double INITIAL_VELOCITY = 0.0;
+	
 	// Moment of Inertia for a cube passing through the center:
 	// I = (1/6)ma^2, m = mass(kg), a=length of side(m), I(kgm^2)
-	private static final double spacecraft_inertia = (1.0/6.0)*1.33*0.01*0.01;
+	private static final double INERTIA = (1.0/6.0)*1.33*0.01*0.01;
 	
 	public Sensor(){
 	    super("Sensor");
@@ -28,61 +28,66 @@ public class Sensor extends siso {
 		addOutport("ControllerPortVelocity");
 		addOutport("UserPort");
 		
-		addTestInput("ExternalPort", new doubleEnt((double)1000000));
-		addTestInput("ExternalPort", new doubleEnt((double)-1000000));
-		
 		initalize();
 	}
 	
 	public void initalize(){
-		spacecraft_angle = init_angle;
-		spacecraft_rot_speed = 0;
-		wheel_tor = 0;
-		external_tor = 0;
-		holdIn("Active", 1);
 		super.initialize();
+		wheelTorque = 0;
+		externalTorque = 0;
+		currentAngle = INITIAL_ANGLE;
+		angularVelocity = INITIAL_VELOCITY;
+		holdIn("active", 1);
 	}
 	
 	public void  deltext(double e, message x){
-		for(int i=0; i<x.getLength(); i++){
-			if (messageOnPort(x,"ExternalPort",i)){
-				input = x.getValOnPort("ExternalPort", i);
-				external_tor = Double.parseDouble(input.toString());
+		Continue(e);
+		for(int i=0; i<x.getLength(); i++)	{
+			if (messageOnPort(x,"ExternalPort",i))	{
+				doubleEnt portVal = (doubleEnt) x.getValOnPort("ExternalPort", i);
+				externalTorque = portVal.getv();
 			}
-			else if (messageOnPort(x,"MotorPort",i)){
-				input = x.getValOnPort("MotorPort", i);
-				wheel_tor = Double.parseDouble(input.toString());
+			else if (messageOnPort(x,"MotorPort",i))	{
+				doubleEnt portVal = (doubleEnt) x.getValOnPort("MotorPort", i);
+				wheelTorque = portVal.getv();
 			}
 		}
-		Continue(e);
 	}
 	
 	public void deltint(){
-		double net_tor = external_tor - wheel_tor;
-		spacecraft_rot_speed += (net_tor / spacecraft_inertia) * time_step;	
-		spacecraft_angle += spacecraft_rot_speed * time_step;
+		double net_tor = externalTorque - wheelTorque;
+		angularVelocity += (net_tor / INERTIA) * TIME_STEP;	
+		currentAngle += angularVelocity * TIME_STEP;
 		
-		spacecraft_angle = spacecraft_angle % (2 * Math.PI);
-		if (spacecraft_angle < 0.0)
-			spacecraft_angle += 2 * Math.PI;
+		currentAngle = currentAngle % (2 * Math.PI);
+		if (currentAngle < 0.0)
+			currentAngle += 2 * Math.PI;
 				
-		holdIn("Active", 1);
+		holdIn("active", 1);
+	}
+	
+	//Okay to use default confluent delta function
+	public void deltcon(double e, message x)
+	{
+		deltext(0,x);
+		deltint();
 	}
 	
 	public message out(){
+		showState();
 		message m = new message();
-		content angle_con = makeContent("ControllerPortAngle", new doubleEnt(spacecraft_angle));
-		content vel_con = makeContent("ControllerPortVelocity", new doubleEnt(spacecraft_rot_speed));
-		content con = makeContent("UserPort", new entity("Disturbance: " + 
-														 String.format("%.2f", external_tor) + " Nm"));
-		m.add(angle_con);
-		m.add(vel_con);
-		m.add(con);
+		content angleCon = makeContent("ControllerPortAngle", new doubleEnt(currentAngle));
+		content velocityCon = makeContent("ControllerPortVelocity", new doubleEnt(angularVelocity));
+		content disturbanceCon = makeContent("UserPort", new doubleEnt(externalTorque));
+		m.add(angleCon);
+		m.add(velocityCon);
+		m.add(disturbanceCon);
 		return m;
 	}
 	
 	public void showState(){
 		super.showState();
+		System.out.println("Disturbance: " + String.format("%.2f", externalTorque) + " Nm");
 	}
 	
 	public String getTooltipText(){
