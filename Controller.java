@@ -107,9 +107,7 @@ public class Controller extends ViewableAtomic
 	{
 		message m = new message();
 		m.add(makeContent("MotorCmdPort", new doubleEnt(commanded_torque)));
-		m.add(makeContent("UserFeedback", new entity("Angle: " +
-													 String.format("%.2f", actual_angle * 360 / (2 * Math.PI)) +
-													  " degrees")));
+		m.add(makeContent("UserFeedback", new doubleEnt(actual_angle * 360 / (2 * Math.PI))));
 		return m;
 	}
 }

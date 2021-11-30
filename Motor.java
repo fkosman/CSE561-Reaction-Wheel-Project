@@ -92,9 +92,7 @@ public class Motor extends siso {
 	{
 		message m = new message();
 		m.add(makeContent(RCTN_TRQ_OUTPORT, new doubleEnt(reaction_trq)));
-		m.add(makeContent("UserPort", new entity("Wheel velocity: " + 
-												 String.format("%.2f", 60 * wheel_vel / (2 * Math.PI)) + 
-												 "RPM")));
+		m.add(makeContent("UserPort", new doubleEnt(60 * wheel_vel / (2 * Math.PI))));
 		return m;
 	}
 	
