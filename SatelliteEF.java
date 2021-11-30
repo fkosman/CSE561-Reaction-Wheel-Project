@@ -30,6 +30,12 @@ public class SatelliteEF extends ViewableDigraph {
 		addCoupling(satellite, "Wheel Speed Out", this, "WheelSpeed");
 		addCoupling(satellite, "Disturbance Out", this, "Disturbance");
 		
+		for(int i=1; i<=8 ;i++)
+		{
+			double angle = ((double)i/4.0)*Math.PI;
+			addTestInput("UserInput", new doubleEnt(angle));
+		}
+		
 		initialize();
 	}
 	

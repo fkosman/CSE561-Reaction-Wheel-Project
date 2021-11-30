@@ -73,7 +73,8 @@ public class Sensor extends siso {
 		message m = new message();
 		content angle_con = makeContent("ControllerPortAngle", new doubleEnt(spacecraft_angle));
 		content vel_con = makeContent("ControllerPortVelocity", new doubleEnt(spacecraft_rot_speed));
-		content con = makeContent("UserPort", new doubleEnt(external_tor));
+		content con = makeContent("UserPort", new entity("Disturbance: " + 
+														 String.format("%.2f", external_tor) + " Nm"));
 		m.add(angle_con);
 		m.add(vel_con);
 		m.add(con);
