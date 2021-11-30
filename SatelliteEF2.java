@@ -26,10 +26,10 @@ public class SatelliteEF2 extends ViewableDigraph {
 		add(transducer);
 		
 		addCoupling(this, "Start", generator, "Start");
-		addCoupling(generator, "Command Out", satellite, "Command In");
+		addCoupling(generator, "Command Out", satellite, "UserPort");
 		addCoupling(generator, "Command Out", transducer, "Gen Input");
-		addCoupling(satellite, "Angle Out", transducer, "Sensor Input");
-		addCoupling(satellite, "Angle Out", this, "Angle");
+		addCoupling(satellite, "Sattelite Angle (degrees)", transducer, "Sensor Input");
+		addCoupling(satellite, "Sattelite Angle (degrees)", this, "Angle");
 		addCoupling(transducer, "Rise Time", this, "Rise Time");
 		
 		initialize();
