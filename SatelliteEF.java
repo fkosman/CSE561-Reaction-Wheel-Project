@@ -12,23 +12,13 @@ public class SatelliteEF extends ViewableDigraph {
 	{
 		super(name);
 		
-		addInport("UserInput");
-		addOutport("Angle");
-		addOutport("WheelSpeed");
-		addOutport("Disturbance");
-		
 		Satellite satellite = new Satellite();
 		Disturbance disturbance = new Disturbance();
 		
 		add(satellite);
 		add(disturbance);
 		
-		addCoupling(disturbance, "SensorPort", satellite, "Disturbance In");
-		
-		addCoupling(this, "UserInput", satellite, "Command In");
-		addCoupling(satellite, "Angle Out", this, "Angle");
-		addCoupling(satellite, "Wheel Speed Out", this, "WheelSpeed");
-		addCoupling(satellite, "Disturbance Out", this, "Disturbance");
+		addCoupling(disturbance, "SatellitePort", satellite, "ExternalPort");
 		
 		for(int i=1; i<=8 ;i++)
 		{
@@ -48,7 +38,7 @@ public class SatelliteEF extends ViewableDigraph {
     public void layoutForSimView()
     {
         preferredSize = new Dimension(884, 379);
-        ((ViewableComponent)withName("Disturbance")).setPreferredLocation(new Point(12, 294));
+        ((ViewableComponent)withName("Disturbance")).setPreferredLocation(new Point(0, 41));
         ((ViewableComponent)withName("Satellite")).setPreferredLocation(new Point(124, 26));
     }
 }
