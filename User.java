@@ -5,7 +5,7 @@ import GenCol.entity;
 import model.modeling.message;
 import view.modeling.ViewableAtomic;
 
-public class Generator extends ViewableAtomic {
+public class User extends ViewableAtomic {
 	private static final String START = "Start";
 	//private static final String SEL = "Select";
 	private static final String COMMAND = "Command Out";
@@ -17,10 +17,9 @@ public class Generator extends ViewableAtomic {
 	double test_val = 15.0;
 	
 	
-	public Generator() {this("Generator");}
-	public Generator(String name)
+	public User()
 	{
-		super(name);
+		super("User");
 		
 		addInport(START);
 		//addInport(SEL);

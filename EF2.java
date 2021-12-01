@@ -6,20 +6,19 @@ import java.awt.Point;
 import view.modeling.ViewableComponent;
 import view.modeling.ViewableDigraph;
 
-public class SatelliteEF2 extends ViewableDigraph {
+public class EF2 extends ViewableDigraph {
 
-	public SatelliteEF2() {this("SatelliteEF2");}
-	public SatelliteEF2(String name)
+	public EF2()
 	{
-		super(name);
+		super("User Command Experiment");
 		
 		addInport("Start");
 		addOutport("Angle");
 		addOutport("Rise Time");
 		
 		Satellite satellite = new Satellite();
-		Generator generator = new Generator();
-		Transducer transducer = new Transducer();
+		User generator = new User();
+		Transducer2 transducer = new Transducer2();
 		
 		add(satellite);
 		add(generator);
@@ -43,8 +42,8 @@ public class SatelliteEF2 extends ViewableDigraph {
     public void layoutForSimView()
     {
         preferredSize = new Dimension(1267, 435);
-        ((ViewableComponent)withName("Transducer")).setPreferredLocation(new Point(813, 354));
+        ((ViewableComponent)withName("Transducer")).setPreferredLocation(new Point(14, 320));
+        ((ViewableComponent)withName("User")).setPreferredLocation(new Point(-1, 109));
         ((ViewableComponent)withName("Satellite")).setPreferredLocation(new Point(223, 42));
-        ((ViewableComponent)withName("Generator")).setPreferredLocation(new Point(-19, 342));
     }
 }
