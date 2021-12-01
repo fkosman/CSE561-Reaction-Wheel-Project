@@ -47,7 +47,7 @@ public class Sensor extends siso {
 				doubleEnt portVal = (doubleEnt) x.getValOnPort("ExternalPort", i);
 				externalTorque = portVal.getv();
 			}
-			else if (messageOnPort(x,"MotorPort",i))	{
+			if (messageOnPort(x,"MotorPort",i))	{
 				doubleEnt portVal = (doubleEnt) x.getValOnPort("MotorPort", i);
 				wheelTorque = portVal.getv();
 			}

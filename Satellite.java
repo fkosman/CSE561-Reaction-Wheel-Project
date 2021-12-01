@@ -55,9 +55,9 @@ public class Satellite extends ViewableDigraph {
     @Override
     public void layoutForSimView()
     {
-        preferredSize = new Dimension(592, 276);
+        preferredSize = new Dimension(556, 276);
         ((ViewableComponent)withName("Motor")).setPreferredLocation(new Point(-1, 120));
-        ((ViewableComponent)withName("Controller")).setPreferredLocation(new Point(24, 45));
+        ((ViewableComponent)withName("Controller")).setPreferredLocation(new Point(34, 34));
         ((ViewableComponent)withName("Sensor")).setPreferredLocation(new Point(29, 188));
     }
 }

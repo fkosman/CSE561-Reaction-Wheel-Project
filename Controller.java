@@ -61,9 +61,9 @@ public class Controller extends ViewableAtomic	{
 				
 				goalAngle *= (2 * Math.PI / 360.0);
 			} 
-			else if(messageOnPort(x,"SensorPortAngle",i))	
+			if(messageOnPort(x,"SensorPortAngle",i))	
 				actualAngle = Double.parseDouble(x.getValOnPort("SensorPortAngle", i).toString());
-			else if (messageOnPort(x,"SensorPortVelocity",i))
+			if (messageOnPort(x,"SensorPortVelocity",i))
 				angularVelocity = Double.parseDouble(x.getValOnPort("SensorPortVelocity", i).toString());
 		}
 	}
